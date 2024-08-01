@@ -2,6 +2,8 @@ import express from 'express';
 import {Server} from "socket.io";
 import {createServer} from "http"
 import cors from "cors";
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 
 const port =3000;
 
@@ -22,8 +24,31 @@ app.use(cors({
     credentials:true,
 }))
 
+const secretkeyJWT = "Debasish"
+
 app.get("/", (req, res) => {
     res.send("Hello world!")
+})
+
+
+app.get("/login", (req, res) => {
+   const token = jwt.sign({_id: "Deba"},secretkeyJWT)
+
+   res.cookie("token", token,{httpOnly:false,secure:true, sameSite:"none"}).json({
+    message:"Login Success",
+   })
+})
+
+const user=false;
+io.use((socket,next)=>{
+    cookieParser()(socket.request, socket.request.res,(error)=>{
+        if(error) return next(error);
+        const token = socket.request.cookies.token;
+
+        if(!token) return next(new Error("Authentication Error"));
+        const decode = jwt.verify(token, secretkeyJWT)
+        next()
+    } )
 })
 
 io.on("connection",(socket)=>{
