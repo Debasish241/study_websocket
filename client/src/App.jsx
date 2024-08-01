@@ -7,6 +7,7 @@ function App() {
   const [room, setRoom] = useState("");
   const [socketId, setSocketId] = useState("");
   const [messages, setMessages] = useState([]);
+  const [roomname, setRoomname] = useState("");
 
   // console.log(messages);
 
@@ -14,6 +15,12 @@ function App() {
     e.preventDefault();
     socket.emit("message", { message, room });
     setMessage("");
+  };
+
+  const handleJoinRoom = (e) => {
+    e.preventDefault();
+    socket.emit("join-room", roomname);
+    setRoomname("");
   };
 
   useEffect(() => {
@@ -45,6 +52,21 @@ function App() {
       <Typography variant="h6" component="div" gutterBottom>
         {socketId}
       </Typography>
+
+      <form onSubmit={handleJoinRoom}>
+        {" "}
+        <h5>Join room</h5>
+        <TextField
+          value={roomname}
+          onChange={(e) => setRoomname(e.target.value)}
+          id="outlined-basic"
+          label="Room Name"
+          variant="outlined"
+        />
+        <Button type="submit" variant="contained" color="primary">
+          Join
+        </Button>
+      </form>
 
       <form onSubmit={handleSubmit}>
         <TextField
